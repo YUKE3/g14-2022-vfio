@@ -1,5 +1,7 @@
 #!/bin/sh
 
+VFIO_DEVICE="0000:03:00.0"
+
 if [ ! -e /tmp/dgpu-rebar-fixed ]
 then
     echo "Fixing DGPU rebar status"
