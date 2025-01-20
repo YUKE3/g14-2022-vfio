@@ -83,6 +83,13 @@ When you reach the drive selection screen, click on `Load Driver` and choose the
 
 Then you can continue the Windows install as normal.
 
+When you get to Windows Account login, you can press SHIFT+F10 and input the following to skip it:
+
+```
+cd oobe
+msoobe.exe\bypassnro
+```
+
 ### Debloat
 
 I used to debloat my Windows installs alot (Used Windows 10 LTSC before, then used Tiny11 and AtlasOS in VMs). However, I found that the performance gained is pretty neglible, especially since we already have overhead with VM. If the goal is best performance, Dual Booting would be better. Therefore, I just use the [Chris Titus Tech's Windows Utility](https://github.com/ChrisTitusTech/winutil).
