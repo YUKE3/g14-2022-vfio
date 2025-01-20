@@ -93,3 +93,84 @@ msoobe.exe\bypassnro
 ### Debloat
 
 I used to debloat my Windows installs alot (Used Windows 10 LTSC before, then used Tiny11 and AtlasOS in VMs). However, I found that the performance gained is pretty neglible, especially since we already have overhead with VM. If the goal is best performance, Dual Booting would be better. Therefore, I just use the [Chris Titus Tech's Windows Utility](https://github.com/ChrisTitusTech/winutil).
+
+
+# Setup the VM with passthrough
+
+I recommend cloning the original VM (without cloning the drive) so that you still have a easy way to boot the VM without GPU passthrough.
+
+### Add PCI hardware
+
+`Add Hardware -> PCI Host Device`
+
+`0000:03:00:00` and `0000:03:00:00` should be added for GPU passthough.
+
+(optional) `0000:07:00:04` can be added for the two USB A ports on the right side of the laptop.
+
+### Add a temporary mouse
+
+`Add Hardware -> USB Host Device`. Just for now to install display drivers, as the SPICE mouse will be very hard to use once the display driver loads.
+
+### Before booting, we need to run scripts to make sure GPU passthrough works
+
+`check_gpu_available.sh` - Checks if the GPU is currently being used by an application.
+
+```bash
+#!/bin/sh
+
+DRI_PATH="pci-0000:03:00.0"
+
+if fuser -s /dev/dri/by-path/$DRI_PATH-card || fuser -s /dev/dri/by-path/$DRI_PATH-render ; then
+  echo "gpu in use"
+  exit 1
+fi
+
+exit 0
+```
+
+`fix_rebar.sh` - Fixes Code 43, only needs to be ran once per boot.
+
+```bash
+#!/bin/sh
+
+VFIO_DEVICE="0000:03:00.0"
+echo -n ${VFIO_DEVICE} > /sys/bus/pci/drivers/amdgpu/unbind
+echo 8 > /sys/bus/pci/devices/${VFIO_DEVICE}/resource0_resize
+echo 1 > /sys/bus/pci/devices/${VFIO_DEVICE}/resource2_resize
+```
+
+Run these two scripts `fix_rebar.sh` once, and use `check_gpu_available.sh` before running the VM. We can add these to libvirt hooks to automate it later.
+
+### Boot VM, run Windows update to get drivers.
+
+You should be able to find the GPU in the device manager afterwards
+
+![Device manager]()
+
+You can turn off the VM now and we can finish setting it up.
+
+### Remove unnecessary things
+
+- Sound ich9
+- Console 1
+- Channel Spice (only if you don't use looking-glass)
+- USB Redirectors
+- Edit the VM's XML and find `memballon model="virtio"`. Replace `virtio` with `none`.
+
+### VM hooks
+
+Follow the instruction here on [Asus-linux guide for libvirt hooks](https://asus-linux.org/guides/vfio-guide/#chapter-2-libvirt-hooks).
+
+Make sure that you use the correct VM names.
+
+Then, add the two scripts in start_hooks folder to `/etc/libvirt/hooks/qemu.d/$vmname/prepare/begin/*`.
+
+### Finishing up
+
+Set `Video QXL` model to `None`. You can now use this VM by connecting an external monitor to the HDMI port and pass through USB mouse and keyboard.
+
+If you want to setup looking-glass: See [Asus-linux looking-glass Guide](https://asus-linux.org/guides/vfio-guide/#option-3-looking-glass-setup)
+
+I also have [section]() on some looking glass setup for Fedora Kinoite specially.
+
+If you want to share keyboard and mouse with linux host: See [Asus-linux evdev Guide](https://asus-linux.org/guides/vfio-guide/#option-2-evdev-input)
