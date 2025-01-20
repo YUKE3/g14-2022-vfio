@@ -174,3 +174,25 @@ If you want to setup looking-glass: See [Asus-linux looking-glass Guide](https:/
 I also have [section]() on some looking glass setup for Fedora Kinoite specially.
 
 If you want to share keyboard and mouse with linux host: See [Asus-linux evdev Guide](https://asus-linux.org/guides/vfio-guide/#option-2-evdev-input)
+
+
+### Freezing Issues
+
+When you start/stop the VM, you may experience the entire linux display stack crashing (and sometimes recovering). This could be fixed by adding this kernel parameter:
+
+`pci_port_pm=off`
+
+However, this kernel parameter makes my laptop completely unusable as a portable device, as this parameter causes:
+
+- DGPU to never to go D3Sleep, 20-30W on idle :(. You could keep a VM running in the background so that DGPU goes to sleep in the VM, however, the battery drain is still going too high for a portable device.
+
+- Sleep completely breaks my machine for some reason.
+
+You could try to use the following script to turn off power management for the GPU only (and only run it when you need the VM), but this makes the DGPU never going into D3Sleep on host for the rest of the current boot.
+
+```bash
+echo 'on' > /sys/bus/pci/devices/${VFIO_DEVICE}/power/control
+echo 'on' > /sys/bus/pci/devices/${VFIO_AUDIO_DEVICE}/power/control
+```
+
+Personally, making sure that no process is using the GPU makes the first boot successful on most attempts. The hook script should be enough, but you could also completely isolate the DGPU as well. After the VM boots a single time, I usually resets my machine.
