@@ -70,7 +70,7 @@ Here's what needs to be changed:
 
 This will significantly speed up the installation time if you are using more than a single core.
 
-![CPU Mneu](images/CPU_config.png)
+![CPU Menu](images/CPU_config.png)
 
 Then, click on the `XML` tab and add: 
 
