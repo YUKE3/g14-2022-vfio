@@ -97,7 +97,7 @@ I recommend cloning the original VM (without cloning the drive) so that you stil
 
 `Add Hardware -> PCI Host Device`
 
-`0000:03:00:00` and `0000:03:00:00` should be added for GPU passthough.
+`0000:03:00:00` and `0000:03:00:01` should be added for GPU passthough.
 
 (optional) `0000:07:00:04` can be added for the two USB A ports on the right side of the laptop.
 
@@ -137,9 +137,7 @@ Run `check_gpu_available.sh` before running the VM to make sure the dGPU is avai
 
 ### Boot VM, run Windows update to get drivers.
 
-You should be able to find the GPU in the device manager afterwards
-
-![Device manager]()
+You should be able to find the GPU in the device manager afterwards.
 
 You can turn off the VM now and we can finish setting it up.
 
@@ -158,7 +156,7 @@ Follow the instruction here on [Asus-linux guide for libvirt hooks](https://asus
 
 Make sure that you use the correct VM names.
 
-Then, add the two scripts in start_hooks folder to `/etc/libvirt/hooks/qemu.d/$vmname/prepare/begin/*`.
+Then, add the necessary scripts in start_hooks and end_hooks folders to `/etc/libvirt/hooks/qemu.d/$vmname/prepare/begin/*` and `/etc/libvirt/hooks/qemu.d/$vmname/prepare/begin/*` respectively.
 
 ### Finishing up
 
