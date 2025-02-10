@@ -225,3 +225,11 @@ crw-rw-rw-. 1 root render   226, 129 Feb 10 00:12 renderD129
 ```
 
 This prevents any process from running on the dGPU without explicit permission.
+
+# References
+
+* [fluffysheap's reddit post](https://old.reddit.com/r/VFIO/comments/ry4i4d/workaround_for_sysfs_cannot_create_duplicate/) - Isolating dGPU to avoid amdgpu sysfs bug.
+
+* [asus-linux VFIO guide](https://asus-linux.org/guides/vfio-guide/) - In depth VM creation step
+
+* [dixyes's gist](https://gist.github.com/dixyes/740018e040593ef0ec729a784f84f8c7) - Disabling rebar
