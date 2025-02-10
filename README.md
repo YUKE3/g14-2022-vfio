@@ -7,8 +7,9 @@ Follow along on this guide as well for any unclear steps: [asus-linux.org guide]
 # Device info
 ASUS ROG Zephyrus G14(2022) GA402RJ
 
-BIOS Version 319
-(If you have a older BIOS you may have a better time)
+[Beta USB4 BIOS](https://www.asus.com/support/faq/1054277/)
+
+This has the most up-to-date firmware and fixes most freezing in my experience.
 
 Fedora Kionite 41
 
@@ -191,7 +192,9 @@ When you start/stop the VM, you may experience the entire linux display stack cr
 
 ### PCIe Port Power Manager
 
-This issue could be fixed by adding this kernel parameter:
+__This issue seems to be mostly fixed in the [latest beta USB4 bios](https://www.asus.com/support/faq/1054277/)!__
+
+If the issue still persists (the screen freezes but recovers), it could be fixed by adding this kernel parameter:
 
 `pcie_port_pm=off`
 
