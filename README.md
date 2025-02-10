@@ -12,6 +12,22 @@ BIOS Version 319
 
 Fedora Kionite 41
 
+# TODO
+
+- Add performance hooks scripts
+- Add dgpu_exec scripts for dGPU isolation
+- looking-glass selinux bypass
+- looking-glass kvmfr setup
+
+# Table of Contents
+
+1. [Preparations](#preparations)
+2. [Creating Windows VM](#create-the-windows-vm)
+3. [Setup VM with passthrough](#setup-the-vm-with-passthrough)
+4. [Freezing Issues](#freezing-issues)
+    1. [PCIe Port PM issue](#pcie-port-power-manager)
+    2. [AMDGPU Reattach issue / Isolating the dGPU](#amdgpu-driver-issue-isolating-the-gpu)
+5. [References](#references)
 
 # Preparations
 
