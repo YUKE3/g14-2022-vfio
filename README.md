@@ -79,20 +79,15 @@ under the CPU tags:
 
 Go through the rest of install as usual, you can set `Time and currency format` to `English (world)` to avoid some bloatware.
 
-When you reach the drive selection screen, click on `Load Driver` and choose the folder `virtio-win/amd64/win11`. Also install the internet driver at the same time (can be installe later through device manager), Choose the folder `NetKVM/w11/amd64`.
+When you reach the drive selection screen, click on `Load Driver` and choose the folder `virtio-win/amd64/win11`. You can also install the internet driver at the same time. Though you can install the driver later in device manager (and skip Windows account login). The driver is in the folder `NetKVM/w11/amd64`.
 
 Then you can continue the Windows install as normal.
 
-When you get to Windows Account login, you can press SHIFT+F10 and input the following to skip it:
-
-```
-cd oobe
-msoobe.exe\bypassnro
-```
+When you get to Windows Account login, choose Work or School, and choose Domain join to avoid Microsoft Account login (may not work, Microsoft is forcing online accounts, SkipOOBE method already don't work on latest iso)
 
 ### Debloat
 
-I used to debloat my Windows installs alot (Used Windows 10 LTSC before, then used Tiny11 and AtlasOS in VMs). However, I found that the performance gained is pretty neglible, especially since we already have overhead with VM. If the goal is best performance, Dual Booting would be better. Therefore, I just use the [Chris Titus Tech's Windows Utility](https://github.com/ChrisTitusTech/winutil).
+I used to debloat my Windows installs a lot (Used Windows 10 LTSC before, then used Tiny11 and AtlasOS in VMs). However, I found that the performance gained is pretty neglible, especially since we already have overhead with VM. If the goal is best performance, Dual Booting would be better. Therefore, I just use the [Chris Titus Tech's Windows Utility](https://github.com/ChrisTitusTech/winutil).
 
 
 # Setup the VM with passthrough
