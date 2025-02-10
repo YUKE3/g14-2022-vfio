@@ -111,7 +111,18 @@ I recommend cloning the original VM (without cloning the drive) so that you stil
 
 `Add Hardware -> USB Host Device`. Just for now to install display drivers, as the SPICE mouse will be very hard to use once the display driver loads.
 
-### Before booting, we need to run scripts to make sure GPU passthrough works
+### Before booting, we need to run the following scripts to make sure GPU passthrough works
+
+`fix_rebar.sh` - Fixes Code 43 (only if you did not disable resizable bar), only needs to be ran once per boot.
+
+```bash
+#!/bin/sh
+
+VFIO_DEVICE="0000:03:00.0"
+echo -n ${VFIO_DEVICE} > /sys/bus/pci/drivers/amdgpu/unbind
+echo 8 > /sys/bus/pci/devices/${VFIO_DEVICE}/resource0_resize
+echo 1 > /sys/bus/pci/devices/${VFIO_DEVICE}/resource2_resize
+```
 
 `check_gpu_available.sh` - Checks if the GPU is currently being used by an application.
 
@@ -128,18 +139,7 @@ fi
 exit 0
 ```
 
-`fix_rebar.sh` - Fixes Code 43, only needs to be ran once per boot.
-
-```bash
-#!/bin/sh
-
-VFIO_DEVICE="0000:03:00.0"
-echo -n ${VFIO_DEVICE} > /sys/bus/pci/drivers/amdgpu/unbind
-echo 8 > /sys/bus/pci/devices/${VFIO_DEVICE}/resource0_resize
-echo 1 > /sys/bus/pci/devices/${VFIO_DEVICE}/resource2_resize
-```
-
-Run these two scripts `fix_rebar.sh` once, and use `check_gpu_available.sh` before running the VM. We can add these to libvirt hooks to automate it later.
+Run `check_gpu_available.sh` before running the VM to make sure the dGPU is available. We can add these to libvirt hooks to automate it later.
 
 ### Boot VM, run Windows update to get drivers.
 
@@ -156,6 +156,7 @@ You can turn off the VM now and we can finish setting it up.
 - Channel Spice (only if you don't use looking-glass)
 - USB Redirectors
 - Edit the VM's XML and find `memballon model="virtio"`. Replace `virtio` with `none`.
+- Remove CDROMs
 
 ### VM hooks
 
