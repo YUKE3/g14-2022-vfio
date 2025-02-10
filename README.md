@@ -176,23 +176,59 @@ I also have [section]() on some looking glass setup for Fedora Kinoite specially
 If you want to share keyboard and mouse with linux host: See [Asus-linux evdev Guide](https://asus-linux.org/guides/vfio-guide/#option-2-evdev-input)
 
 
-### Freezing Issues
+# Freezing Issues
 
-When you start/stop the VM, you may experience the entire linux display stack crashing (and sometimes recovering). This could be fixed by adding this kernel parameter:
+When you start/stop the VM, you may experience the entire linux display stack crashing (and sometimes recovering). This is caused by two things: The laptop's pcie port power manager and amdgpu drivers.
 
-`pci_port_pm=off`
+### PCIe Port Power Manager
+
+This issue could be fixed by adding this kernel parameter:
+
+`pcie_port_pm=off`
 
 However, this kernel parameter makes my laptop completely unusable as a portable device, as this parameter causes:
 
-- DGPU to never to go D3Sleep, 20-30W on idle :(. You could keep a VM running in the background so that DGPU goes to sleep in the VM, however, the battery drain is still going too high for a portable device.
+- dGPU to never to go D3Sleep, 20-30W on idle :(. You could keep a VM running in the background so that dGPU goes to sleep in the VM, however, the battery drain is still going too high for a portable device.
 
 - Sleep completely breaks my machine for some reason.
 
-You could try to use the following script to turn off power management for the GPU only (and only run it when you need the VM), but this makes the DGPU never going into D3Sleep on host for the rest of the current boot.
+Instead of the kernel parameter, you could try to use the following script to turn off power management for the dGPU only. This has the same downsides as above, but they only start after you run the script. 
 
 ```bash
-echo 'on' > /sys/bus/pci/devices/${VFIO_DEVICE}/power/control
-echo 'on' > /sys/bus/pci/devices/${VFIO_AUDIO_DEVICE}/power/control
+VFIO_DEVICE="0000:03:00.0"
+VFIO_AUDIO_DEVICE="0000:03:00.1"
+
+sudo sh -c "echo 'on' > /sys/bus/pci/devices/${VFIO_DEVICE}/power/control"
+sudo sh -c "echo 'on' > /sys/bus/pci/devices/${VFIO_AUDIO_DEVICE}/power/control"
 ```
 
-Personally, making sure that no process is using the GPU makes the first boot successful on most attempts. The hook script should be enough, but you could also completely isolate the DGPU as well. After the VM boots a single time, I usually resets my machine.
+### amdgpu driver issue (isolating the GPU)
+
+If you detach the GPU while there is a process running on it, the amdgpu driver is left in a bad state, and when the dGPU reattaches after the VM shutsdown, the amdgpu stack completely crashes. You need to make sure that no process is using the GPU when you boot up the VM. This can be done manually, but many software (especially electron apps) claims the GPU for no reason.
+
+Instead, we can completely isolate the GPU by assigning limiting it to be used by a specific group.
+
+Create a `passthru` group:
+
+```
+sudo groupadd passthru
+```
+
+Add this udev rule:
+`/etc/udev/rules.d/72-passthrough.rules`
+```
+KERNEL=="card[0-9]", SUBSYSTEM=="drm", SUBSYSTEMS=="pci", ATTRS{boot_vga}=="0", GROUP="passthru", TAG="nothing", ENV{ID_SEAT}="none"
+KERNEL=="renderD12[0-9]", SUBSYSTEM=="drm", SUBSYSTEMS=="pci", ATTRS{boot_vga}=="0", GROUP="passthru", MODE="0660"
+```
+
+Reboot the laptop, you can check if it worked by running the command `ll /dev/dri`. The expected output looks like this:
+
+```
+drwxr-xr-x. 2 root root          120 Feb 10 06:41 by-path
+crw-rw----. 1 root passthru 226,   0 Feb 10 07:17 card0
+crw-rw----+ 1 root video    226,   2 Feb 10 06:44 card2
+crw-rw----. 1 root passthru 226, 128 Feb 10 06:41 renderD128
+crw-rw-rw-. 1 root render   226, 129 Feb 10 00:12 renderD129
+```
+
+This prevents any process from running on the dGPU without explicit permission.
