@@ -41,6 +41,11 @@ rpm-ostree install libvirt qemu-kvm-core virt-manager
 
 VFIO mode is redundant when hybrid (default behavior) works completely fine. Supergfxctl also interferes with drivers and other tools (like `driverctl`)
 
+### Disabling Resizable BAR
+
+This feature causes a code 43 error when the GPU is passthrough to the VM. You could disable it using [Smokeless_UMAF](https://github.com/DavidS95/Smokeless_UMAF/tree/main) tool. (Do this at your own risk)
+
+There is also a workaround script in this repo if you want to leave this feature enabled. Personally, I don't see a measurable performance impact with this feature disabled.
 
 ### Download Windows and VirtIO ISOs:
 
